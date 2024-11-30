@@ -64,11 +64,8 @@ Location: `%APPDATA%/Claude/claude_desktop_config.json`
 {
   "mcpServers": {
     "duckdb": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "--directory",
-        "~/mcp-server-duckdb",
-        "run",
         "mcp-server-duckdb",
         "--db-path",
         "~/mcp-server-duckdb/data/data.db"
