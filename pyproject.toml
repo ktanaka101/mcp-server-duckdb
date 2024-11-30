@@ -1,0 +1,27 @@
+[project]
+name = "mcp-server-duckdb"
+version = "0.1.0"
+description = "A DuckDB MCP server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["duckdb>=1.1.3", "mcp>=1.0.0"]
+
+[[project.authors]]
+name = "ktanaka101"
+email = "kentanaka101@gmail.com"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+mcp-server-duckdb = "mcp_server_duckdb:main"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
