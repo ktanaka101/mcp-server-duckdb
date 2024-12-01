@@ -22,24 +22,30 @@ Currently, no custom prompts are implemented.
 The server implements the following database interaction tools:
 
 - **read-query**: Execute SELECT queries to read data from the database
-  - Input: `query` (string) - Must be a SELECT statement
-  - Output: Query results as text
+  - **Input**: `query` (string) - Must be a SELECT statement
+  - **Output**: Query results as text
 
 - **write-query**: Execute INSERT, UPDATE, or DELETE queries to modify data
-  - Input: `query` (string) - Must be a non-SELECT statement
-  - Output: Query results as text
+  - **Input**: `query` (string) - Must be a non-SELECT statement
+  - **Output**: Query results as text
 
 - **create-table**: Create new tables in the database
-  - Input: `query` (string) - Must be a CREATE TABLE statement
-  - Output: Success confirmation message
+  - **Input**: `query` (string) - Must be a CREATE TABLE statement
+  - **Output**: Success confirmation message
 
 - **list-tables**: List all tables in the database
-  - Input: None required
-  - Output: List of tables from information_schema
+  - **Input**: None required
+  - **Output**: List of tables from `information_schema`
 
 - **describe-table**: Get schema information for a specific table
-  - Input: `table_name` (string) - Name of the table to describe
-  - Output: Table schema information
+  - **Input**: `table_name` (string) - Name of the table to describe
+  - **Output**: Table schema information
+
+**Note**: When the server is running in `readonly` mode, the following tools are disabled to prevent any write operations:
+- **write-query**
+- **create-table**
+
+This ensures that the Language Model (LLM) cannot perform any modifications to the database, maintaining data integrity and preventing unintended changes.
 
 ## Configuration
 
@@ -47,6 +53,16 @@ The server implements the following database interaction tools:
 
 - **db-path** (string): Path to the DuckDB database file
   - The server will automatically create the database file and parent directories if they don't exist
+
+### Optional Parameters
+
+- **--readonly**: Run server in read-only mode
+  - **Description**: When this flag is set, the server operates in read-only mode. This means:
+    - The DuckDB database will be opened with `read_only=True`, preventing any write operations.
+    - If the specified database file does not exist, it **will not** be created.
+    - **Security Benefit**: Prevents the Language Model (LLM) from performing any write operations, ensuring that the database remains unaltered.
+  - **Reference**: For more details on read-only connections in DuckDB, see the [DuckDB Python API documentation](https://duckdb.org/docs/api/python/dbapi.html#read_only-connections).
+
 
 ## Installation
 
@@ -74,6 +90,8 @@ Location: `%APPDATA%/Claude/claude_desktop_config.json`
   }
 }
 ```
+
+* Note: `~/mcp-server-duckdb/data/data.db` should be replaced with the actual path to the DuckDB database file.
 
 ## Development
 
