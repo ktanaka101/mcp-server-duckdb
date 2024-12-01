@@ -10,6 +10,8 @@ from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 from pydantic import AnyUrl
 
+from mcp_server_duckdb import Config
+
 logger = logging.getLogger("mcp-server-duckdb")
 logger.info("Starting MCP DuckDB Server")
 
@@ -36,10 +38,10 @@ class DuckDBDatabase:
             return connection.execute(query, parameters).fetchall()
 
 
-async def main(db_path: str):
-    logger.info(f"Starting SQLite MCP Server with DB path: {db_path}")
+async def main(config: Config):
+    logger.info(f"Starting SQLite MCP Server with DB path: {config.db_path}")
 
-    db = DuckDBDatabase(db_path)
+    db = DuckDBDatabase(config.db_path)
     server = Server("mcp-duckdb-server")
 
     logger.debug("Registering handlers")
