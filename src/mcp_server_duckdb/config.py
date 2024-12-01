@@ -28,7 +28,7 @@ class Config:
 
         parser.add_argument(
             "--db-path",
-            type=str,
+            type=Path,
             help="Path to DuckDB database file",
             required=True,
         )
