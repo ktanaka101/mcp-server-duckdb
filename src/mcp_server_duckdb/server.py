@@ -5,8 +5,7 @@ from typing import Any, List
 import duckdb
 import mcp.server.stdio
 import mcp.types as types
-from mcp.server import NotificationOptions, Server
-from mcp.server.models import InitializationOptions
+from mcp.server import Server
 from pydantic import AnyUrl
 
 from mcp_server_duckdb import Config
@@ -212,17 +211,11 @@ async def main(config: Config):
             return [types.TextContent(type="text", text=f"Error: {str(e)}")]
 
     # Run the server using stdin/stdout streams
+    options = server.create_initialization_options()
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         logger.info("DuckDB MCP Server running with stdio transport")
         await server.run(
             read_stream,
             write_stream,
-            InitializationOptions(
-                server_name="mcp-server-duckdb",
-                server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
+            options,
         )
