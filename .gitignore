@@ -11,3 +11,6 @@ wheels/
 
 # mypy
 .mypy_cache/
+
+# Development (ex. data/data.db)
+data/
