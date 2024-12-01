@@ -17,19 +17,27 @@ logger.info("Starting MCP DuckDB Server")
 
 class DuckDBDatabase:
     def __init__(self, config: Config):
+        self.config = config
+
         dir_path = config.db_path.parent
         if not dir_path.exists():
+            if config.readonly:
+                raise ValueError(f"Database directory does not exist: {dir_path} in read-only mode")
+
             logger.info(f"Creating directory: {dir_path}")
             dir_path.mkdir(parents=True)
 
         if not config.db_path.exists():
+            if config.readonly:
+                raise ValueError(f"Database file does not exist: {dir_path} in read-only mode")
+
             logger.info(f"Creating DuckDB database: {config.db_path}")
             duckdb.connect(config.db_path).close()
 
         self.db_path = config.db_path
 
     def connect(self):
-        return duckdb.connect(self.db_path)
+        return duckdb.connect(self.db_path, read_only=self.config.readonly)
 
     def execute_query(self, query: object, parameters: object = None) -> List[Any]:
         with closing(self.connect()) as connection:
@@ -79,7 +87,7 @@ async def main(config: Config):
     @server.list_tools()
     async def handle_list_tools() -> list[types.Tool]:
         """List available tools"""
-        return [
+        tools = [
             types.Tool(
                 name="read-query",
                 description="Execute a SELECT query on the DuckDB database",
@@ -89,34 +97,6 @@ async def main(config: Config):
                         "query": {
                             "type": "string",
                             "description": "SELECT SQL query to execute",
-                        },
-                    },
-                    "required": ["query"],
-                },
-            ),
-            types.Tool(
-                name="write-query",
-                description="Execute an INSERT, UPDATE, or DELETE query on the DuckDB database",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "SQL query to execute",
-                        },
-                    },
-                    "required": ["query"],
-                },
-            ),
-            types.Tool(
-                name="create-table",
-                description="Create a new table in the DuckDB database",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "CREATE TABLE SQL statement",
                         },
                     },
                     "required": ["query"],
@@ -146,6 +126,42 @@ async def main(config: Config):
             ),
         ]
 
+        if not config.readonly:
+            tools.extend(
+                [
+                    types.Tool(
+                        name="write-query",
+                        description="Execute an INSERT, UPDATE, or DELETE query on the DuckDB database",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "SQL query to execute",
+                                },
+                            },
+                            "required": ["query"],
+                        },
+                    ),
+                    types.Tool(
+                        name="create-table",
+                        description="Create a new table in the DuckDB database",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "CREATE TABLE SQL statement",
+                                },
+                            },
+                            "required": ["query"],
+                        },
+                    ),
+                ]
+            )
+
+        return tools
+
     @server.call_tool()
     async def handle_call_tool(
         name: str, arguments: dict[str, Any] | None
@@ -172,12 +188,16 @@ async def main(config: Config):
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "write-query":
+                if not config.readonly:
+                    raise ValueError("Server is running in read-only mode")
                 if arguments["query"].strip().upper().startswith("SELECT"):
                     raise ValueError("SELECT queries are not allowed for write-query")
                 results = db.execute_query(arguments["query"])
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "create-table":
+                if not config.readonly:
+                    raise ValueError("Server is running in read-only mode")
                 if not arguments["query"].strip().upper().startswith("CREATE TABLE"):
                     raise ValueError("Only CREATE TABLE statements are allowed")
                 db.execute_query(arguments["query"])
