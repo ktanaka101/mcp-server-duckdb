@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 from dataclasses import dataclass
+from pathlib import Path
 
 from . import server
 
@@ -11,7 +12,7 @@ class Config:
     Configuration for the server.
     """
 
-    db_path: str
+    db_path: Path
     """
     Path to DuckDB database file.
     """

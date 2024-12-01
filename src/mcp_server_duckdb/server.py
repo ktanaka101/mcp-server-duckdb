@@ -1,6 +1,5 @@
 import logging
 from contextlib import closing
-from pathlib import Path
 from typing import Any, List
 
 import duckdb
@@ -17,18 +16,17 @@ logger.info("Starting MCP DuckDB Server")
 
 
 class DuckDBDatabase:
-    def __init__(self, db_path: str):
-        path = Path(db_path).expanduser()
-        dir_path = path.parent
+    def __init__(self, config: Config):
+        dir_path = config.db_path.parent
         if not dir_path.exists():
             logger.info(f"Creating directory: {dir_path}")
             dir_path.mkdir(parents=True)
 
-        if not path.exists():
-            logger.info(f"Creating DuckDB database: {path}")
-            duckdb.connect(str(path)).close()
+        if not config.db_path.exists():
+            logger.info(f"Creating DuckDB database: {config.db_path}")
+            duckdb.connect(config.db_path).close()
 
-        self.db_path = str(path)
+        self.db_path = config.db_path
 
     def connect(self):
         return duckdb.connect(self.db_path)
@@ -41,7 +39,7 @@ class DuckDBDatabase:
 async def main(config: Config):
     logger.info(f"Starting SQLite MCP Server with DB path: {config.db_path}")
 
-    db = DuckDBDatabase(config.db_path)
+    db = DuckDBDatabase(config)
     server = Server("mcp-duckdb-server")
 
     logger.debug("Registering handlers")
