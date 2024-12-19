@@ -3,6 +3,8 @@
 A Model Context Protocol (MCP) server implementation for DuckDB, providing database interaction capabilities through MCP tools.
 It would be interesting to have LLM analyze it. DuckDB is suitable for local analysis.
 
+<a href="https://glama.ai/mcp/servers/fwggl49w22"><img width="380" height="200" src="https://glama.ai/mcp/servers/fwggl49w22/badge" alt="mcp-server-duckdb MCP server" /></a>
+
 ## Overview
 
 This server enables interaction with a DuckDB database through the Model Context Protocol, allowing for database operations like querying, table creation, and schema inspection.
