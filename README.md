@@ -1,4 +1,5 @@
 # mcp-server-duckdb
+[![smithery badge](https://smithery.ai/badge/mcp-server-duckdb)](https://smithery.ai/server/mcp-server-duckdb)
 
 A Model Context Protocol (MCP) server implementation for DuckDB, providing database interaction capabilities through MCP tools.
 It would be interesting to have LLM analyze it. DuckDB is suitable for local analysis.
@@ -65,6 +66,14 @@ This ensures that the Language Model (LLM) cannot perform any modifications to t
 
 
 ## Installation
+
+### Installing via Smithery
+
+To install DuckDB Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/mcp-server-duckdb):
+
+```bash
+npx -y @smithery/cli install mcp-server-duckdb --client claude
+```
 
 ### Claude Desktop Integration
 
