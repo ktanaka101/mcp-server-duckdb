@@ -187,7 +187,7 @@ async def main(config: Config):
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "write-query":
-                if not config.readonly:
+                if config.readonly:
                     raise ValueError("Server is running in read-only mode")
                 if arguments["query"].strip().upper().startswith("SELECT"):
                     raise ValueError("SELECT queries are not allowed for write-query")
@@ -195,7 +195,7 @@ async def main(config: Config):
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "create-table":
-                if not config.readonly:
+                if config.readonly:
                     raise ValueError("Server is running in read-only mode")
                 if not arguments["query"].strip().upper().startswith("CREATE TABLE"):
                     raise ValueError("Only CREATE TABLE statements are allowed")
