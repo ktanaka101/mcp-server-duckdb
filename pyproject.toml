@@ -40,3 +40,6 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[dependency-groups]
+dev = ["pytest>=8.3.4"]
