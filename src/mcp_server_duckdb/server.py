@@ -44,7 +44,7 @@ class DuckDBDatabase:
 
 
 async def main(config: Config):
-    logger.info(f"Starting SQLite MCP Server with DB path: {config.db_path}")
+    logger.info(f"Starting DuckDB MCP Server with DB path: {config.db_path}")
 
     db = DuckDBDatabase(config)
     server = Server("mcp-duckdb-server")
