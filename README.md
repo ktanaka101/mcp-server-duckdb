@@ -1,8 +1,8 @@
 # mcp-server-duckdb
-[![smithery badge](https://smithery.ai/badge/mcp-server-duckdb)](https://smithery.ai/server/mcp-server-duckdb)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mcp-server-duckdb)](https://pypi.org/project/mcp-server-duckdb/)
 [![PyPI - License](https://img.shields.io/pypi/l/mcp-server-duckdb)](LICENSE)
+[![smithery badge](https://smithery.ai/badge/mcp-server-duckdb)](https://smithery.ai/server/mcp-server-duckdb)
 
 A Model Context Protocol (MCP) server implementation for DuckDB, providing database interaction capabilities through MCP tools.
 It would be interesting to have LLM analyze it. DuckDB is suitable for local analysis.
