@@ -181,22 +181,16 @@ async def main(config: Config):
                 raise ValueError("Missing arguments")
 
             if name == "read-query":
-                if not arguments["query"].strip().upper().startswith("SELECT"):
-                    raise ValueError("Only SELECT queries are allowed for read-query")
                 results = db.execute_query(arguments["query"])
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "write-query":
-                if config.readonly:
-                    raise ValueError("Server is running in read-only mode")
                 if arguments["query"].strip().upper().startswith("SELECT"):
                     raise ValueError("SELECT queries are not allowed for write-query")
                 results = db.execute_query(arguments["query"])
                 return [types.TextContent(type="text", text=str(results))]
 
             elif name == "create-table":
-                if config.readonly:
-                    raise ValueError("Server is running in read-only mode")
                 if not arguments["query"].strip().upper().startswith("CREATE TABLE"):
                     raise ValueError("Only CREATE TABLE statements are allowed")
                 db.execute_query(arguments["query"])
