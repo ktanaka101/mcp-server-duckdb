@@ -99,6 +99,7 @@ def test_readonly_flag_behavior():
 
     1) readonly=False: should allow table creation and data insertion.
     2) readonly=True: should raise an error when attempting to insert data.
+                      use SELECT/SHOW/PRAGMA to verify read access.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         # 1) Writable configuration
@@ -115,7 +116,9 @@ def test_readonly_flag_behavior():
         db_path_readonly = Path(tmpdir) / "readonly.db"
         # Create the DB file in non-readonly mode first
         config_init = Config(db_path=db_path_readonly, readonly=False)
-        DuckDBDatabase(config_init).execute_query("CREATE TABLE ro_test (val INTEGER)")
+        db = DuckDBDatabase(config_init)
+        db.execute_query("CREATE TABLE ro_test (val INTEGER)")
+        db.execute_query("INSERT INTO ro_test VALUES (100)")
 
         # Reopen in readonly mode
         config_ro = Config(db_path=db_path_readonly, readonly=True)
@@ -124,3 +127,13 @@ def test_readonly_flag_behavior():
         # Attempt to write should fail
         with pytest.raises(duckdb.Error):
             db_ro.execute_query("INSERT INTO ro_test VALUES (999)")
+
+        # Check that we can still read
+        result = db_ro.execute_query("SELECT * FROM ro_test;")
+        assert result == [(100,)]
+
+        result = db_ro.execute_query("PRAGMA table_info(ro_test);")
+        assert result == [(0, "val", "INTEGER", False, None, False)]
+
+        result = db_ro.execute_query("SHOW TABLES;")
+        assert result == [("ro_test",)]
