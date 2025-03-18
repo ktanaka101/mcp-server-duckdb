@@ -88,76 +88,20 @@ async def main(config: Config):
         """List available tools"""
         tools = [
             types.Tool(
-                name="read-query",
-                description="Execute a SELECT query on the DuckDB database",
+                name="query",
+                description="Execute a query on the DuckDB database",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "SELECT SQL query to execute",
+                            "description": "SQL query to execute",
                         },
                     },
                     "required": ["query"],
                 },
             ),
-            types.Tool(
-                name="list-tables",
-                description="List all tables in the DuckDB database",
-                inputSchema={
-                    "type": "object",
-                    "properties": {},
-                },
-            ),
-            types.Tool(
-                name="describe-table",
-                description="Get the schema information for a specific table",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "table_name": {
-                            "type": "string",
-                            "description": "Name of the table to describe",
-                        },
-                    },
-                    "required": ["table_name"],
-                },
-            ),
         ]
-
-        if not config.readonly:
-            tools.extend(
-                [
-                    types.Tool(
-                        name="write-query",
-                        description="Execute an INSERT, UPDATE, or DELETE query on the DuckDB database",
-                        inputSchema={
-                            "type": "object",
-                            "properties": {
-                                "query": {
-                                    "type": "string",
-                                    "description": "SQL query to execute",
-                                },
-                            },
-                            "required": ["query"],
-                        },
-                    ),
-                    types.Tool(
-                        name="create-table",
-                        description="Create a new table in the DuckDB database",
-                        inputSchema={
-                            "type": "object",
-                            "properties": {
-                                "query": {
-                                    "type": "string",
-                                    "description": "CREATE TABLE SQL statement",
-                                },
-                            },
-                            "required": ["query"],
-                        },
-                    ),
-                ]
-            )
 
         return tools
 
@@ -167,35 +111,12 @@ async def main(config: Config):
     ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
         """Handle tool execution requests"""
         try:
-            if name == "list-tables":
-                results = db.execute_query("SELECT * FROM information_schema.tables;")
-                return [types.TextContent(type="text", text=str(results))]
-
-            elif name == "describe-table":
-                if not arguments or "table_name" not in arguments:
-                    raise ValueError("Missing table_name argument")
-                results = db.execute_query("PRAGMA table_info(?)", [arguments["table_name"]])
-                return [types.TextContent(type="text", text=str(results))]
-
             if not arguments:
                 raise ValueError("Missing arguments")
 
-            if name == "read-query":
+            if name == "query":
                 results = db.execute_query(arguments["query"])
                 return [types.TextContent(type="text", text=str(results))]
-
-            elif name == "write-query":
-                if arguments["query"].strip().upper().startswith("SELECT"):
-                    raise ValueError("SELECT queries are not allowed for write-query")
-                results = db.execute_query(arguments["query"])
-                return [types.TextContent(type="text", text=str(results))]
-
-            elif name == "create-table":
-                if not arguments["query"].strip().upper().startswith("CREATE TABLE"):
-                    raise ValueError("Only CREATE TABLE statements are allowed")
-                db.execute_query(arguments["query"])
-                return [types.TextContent(type="text", text="Table created successfully")]
-
             else:
                 raise ValueError(f"Unknown tool: {name}")
 
