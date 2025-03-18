@@ -25,33 +25,18 @@ Currently, no custom prompts are implemented.
 
 ### Tools
 
-The server implements the following database interaction tools:
+The server implements the following database interaction tool:
 
-- **read-query**: Execute SELECT queries to read data from the database
-  - **Input**: `query` (string) - Must be a SELECT statement
-  - **Output**: Query results as text
+- **query**: Execute any SQL query on the DuckDB database
+  - **Input**: `query` (string) - Any valid DuckDB SQL statement
+  - **Output**: Query results as text (or success message for operations like CREATE/INSERT)
 
-- **write-query**: Execute INSERT, UPDATE, or DELETE queries to modify data
-  - **Input**: `query` (string) - Must be a non-SELECT statement
-  - **Output**: Query results as text
+> [!NOTE]
+> The server provides a single unified `query` function rather than separate specialized functions, as modern LLMs can generate appropriate SQL for any database operation (SELECT, CREATE TABLE, JOIN, etc.) without requiring separate endpoints.
 
-- **create-table**: Create new tables in the database
-  - **Input**: `query` (string) - Must be a CREATE TABLE statement
-  - **Output**: Success confirmation message
-
-- **list-tables**: List all tables in the database
-  - **Input**: None required
-  - **Output**: List of tables from `information_schema`
-
-- **describe-table**: Get schema information for a specific table
-  - **Input**: `table_name` (string) - Name of the table to describe
-  - **Output**: Table schema information
-
-**Note**: When the server is running in `readonly` mode, the following tools are disabled to prevent any write operations:
-- **write-query**
-- **create-table**
-
-This ensures that the Language Model (LLM) cannot perform any modifications to the database, maintaining data integrity and preventing unintended changes.
+> [!NOTE]
+> When the server is running in `readonly` mode, DuckDB's native readonly protection is enforced.
+> This ensures that the Language Model (LLM) cannot perform any write operations (CREATE, INSERT, UPDATE, DELETE), maintaining data integrity and preventing unintended changes.
 
 ## Configuration
 
@@ -59,6 +44,7 @@ This ensures that the Language Model (LLM) cannot perform any modifications to t
 
 - **db-path** (string): Path to the DuckDB database file
   - The server will automatically create the database file and parent directories if they don't exist
+  - If `--readonly` is specified and the database file doesn't exist, the server will fail to start with an error
 
 ### Optional Parameters
 
