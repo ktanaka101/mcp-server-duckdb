@@ -123,7 +123,7 @@ Debugging MCP servers can be challenging due to their stdio-based communication.
 
 1. Install the inspector using npm:
 ```bash
-npx @modelcontextprotocol/inspector uv --directory ~/mcp-server-duckdb run mcp-server-duckdb
+npx @modelcontextprotocol/inspector uv --directory ~/codes/mcp-server-duckdb run mcp-server-duckdb --db-path ~/mcp-server-duckdb/data/data.db
 ```
 
 2. Open the provided URL in your browser to access the debugging interface
