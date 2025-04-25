@@ -19,6 +19,12 @@ class Config:
     Run server in read-only mode.
     """
 
+    keep_connection: bool = False
+    """
+    Keep database connection open between queries.
+    Useful for TEMP objects like macros and tables, but may cause DB locking.
+    """
+
     @staticmethod
     def from_arguments() -> "Config":
         """
@@ -42,5 +48,16 @@ class Config:
             "See: https://duckdb.org/docs/api/python/dbapi.html#read_only-connections",
         )
 
+        parser.add_argument(
+            "--keep-connection",
+            action="store_true",
+            help="Keep database connection open between queries. "
+            "Useful for TEMP objects like macros and tables, but may cause DB locking.",
+        )
+
         args = parser.parse_args()
-        return Config(db_path=args.db_path, readonly=args.readonly)
+        return Config(
+            db_path=args.db_path,
+            readonly=args.readonly,
+            keep_connection=args.keep_connection
+        )
