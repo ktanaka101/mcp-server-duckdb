@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/ktanaka101-mcp-server-duckdb-badge.png)](https://mseep.ai/app/ktanaka101-mcp-server-duckdb)
+
 # mcp-server-duckdb
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mcp-server-duckdb)](https://pypi.org/project/mcp-server-duckdb/)
