@@ -17,6 +17,8 @@ logger.info("Starting MCP DuckDB Server")
 class DuckDBDatabase:
     def __init__(self, config: Config):
         self.config = config
+        self.db_path = config.db_path
+        self._connection = None
 
         dir_path = config.db_path.parent
         if not dir_path.exists():
@@ -32,9 +34,6 @@ class DuckDBDatabase:
 
             logger.info(f"Creating DuckDB database: {config.db_path}")
             duckdb.connect(config.db_path).close()
-
-        self.db_path = config.db_path
-        self._connection = None
 
     def connect(self):
         if self.config.keep_connection:

@@ -137,3 +137,22 @@ def test_readonly_flag_behavior():
 
         result = db_ro.execute_query("SHOW TABLES;")
         assert result == [("ro_test",)]
+
+
+def test_temp_table_persists_with_keep_connection():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cfg = Config(db_path=Path(tmpdir) / "test.db", keep_connection=True, readonly=False)
+        db = DuckDBDatabase(cfg)
+
+        db.execute_query("CREATE TEMP TABLE t AS SELECT 1 AS v")
+        assert db.execute_query("SELECT v FROM t") == [(1,)]
+
+
+def test_temp_table_does_not_persist_without_keep_connection():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cfg = Config(db_path=Path(tmpdir) / "test.db", keep_connection=False, readonly=False)
+        db = DuckDBDatabase(cfg)
+
+        db.execute_query("CREATE TEMP TABLE t AS SELECT 1 AS v")
+        with pytest.raises(duckdb.Error):
+            db.execute_query("SELECT v FROM t")
