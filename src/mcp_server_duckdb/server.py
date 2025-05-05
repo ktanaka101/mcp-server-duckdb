@@ -34,13 +34,35 @@ class DuckDBDatabase:
             duckdb.connect(config.db_path).close()
 
         self.db_path = config.db_path
+        self._connection = None
 
     def connect(self):
-        return duckdb.connect(self.db_path, read_only=self.config.readonly)
+        if self.config.keep_connection:
+            if self._connection is None:
+                logger.info("Creating new persistent DuckDB connection")
+                self._connection = duckdb.connect(self.db_path, read_only=self.config.readonly)
+            return self._connection
+        else:
+            logger.debug("Creating new temporary DuckDB connection")
+            return duckdb.connect(self.db_path, read_only=self.config.readonly)
 
     def execute_query(self, query: object, parameters: object = None) -> List[Any]:
-        with closing(self.connect()) as connection:
-            return connection.execute(query, parameters).fetchall()
+        if self.config.keep_connection:
+            connection = self.connect()
+            try:
+                return connection.execute(query, parameters).fetchall()
+            except Exception as e:
+                logger.error(f"Query execution error: {e}")
+                raise
+        else:
+            with closing(self.connect()) as connection:
+                return connection.execute(query, parameters).fetchall()
+
+    def __del__(self):
+        if self._connection is not None:
+            logger.info("Closing persistent DuckDB connection")
+            self._connection.close()
+            self._connection = None
 
 
 async def main(config: Config):
