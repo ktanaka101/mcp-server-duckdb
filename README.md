@@ -54,7 +54,8 @@ The server implements the following database interaction tool:
     - If the specified database file does not exist, it **will not** be created.
     - **Security Benefit**: Prevents the Language Model (LLM) from performing any write operations, ensuring that the database remains unaltered.
   - **Reference**: For more details on read-only connections in DuckDB, see the [DuckDB Python API documentation](https://duckdb.org/docs/api/python/dbapi.html#read_only-connections).
-
+- **--keep-connection**: Re-uses a single DuckDB connection mode
+  - **Description**: When this flag is set, Re-uses a single DuckDB connection for the entire server lifetime. Enables TEMP objects & slightly faster queries, but can hold an exclusive lock on the file.
 
 ## Installation
 
